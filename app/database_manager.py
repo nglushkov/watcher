@@ -95,6 +95,7 @@ class DatabaseManager:
     def add_movie_genre_relation(self, movie_id, genre_id):
         with self.connect() as conn:
             cursor = conn.cursor()
+            cursor.execute("DELETE FROM movie_genres WHERE movie_id=%s", (movie_id,))
             cursor.execute("INSERT INTO movie_genres (movie_id, genre_id) VALUES (%s, %s)", (movie_id, genre_id))
             conn.commit()
 
