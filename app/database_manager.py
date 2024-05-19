@@ -26,7 +26,7 @@ class DatabaseManager:
                         title VARCHAR(255),
                         title_original VARCHAR(255),
                         release_date DATE,
-                        rating DECIMAL(4, 3),
+                        rating DECIMAL(5, 3),
                         popularity DECIMAL(9, 3),
                         original_language VARCHAR(255),
                         description TEXT,
