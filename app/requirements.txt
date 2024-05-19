@@ -1,0 +1,16 @@
+certifi==2024.2.2
+charset-normalizer==3.3.2
+decorator==5.1.1
+idna==3.7
+migrate==0.3.8
+mysql-connector-python==8.4.0
+pbr==6.0.0
+python-dotenv==1.0.1
+requests==2.31.0
+six==1.16.0
+SQLAlchemy==2.0.30
+sqlalchemy-migrate==0.13.0
+sqlparse==0.5.0
+Tempita==0.5.2
+typing_extensions==4.11.0
+urllib3==2.2.1
