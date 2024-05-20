@@ -1,11 +1,15 @@
 from mysql import connector
+from dotenv import dotenv_values
+from config import Config
 
 class DatabaseManager:
-    def __init__(self, config):
-        self.config = config
+    connection_params: dict
+    
+    def __init__(self):
+        self.connection_params = Config.get_db_connection_params()
 
     def connect(self):
-        return connector.connect(**self.config)
+        return connector.connect(**self.connection_params)
 
     def create_tables(self, drop_table):
         try:
@@ -109,3 +113,13 @@ class DatabaseManager:
         except connector.Error as err:
             print(f"Error while getting genres: {err}")
             return []
+
+    def find_movie_by_title(self, title):
+        with self.connect() as conn:
+            cursor = conn.cursor(dictionary=True)
+            query = "SELECT title, YEAR(release_date) year FROM movies WHERE LOWER(title) LIKE LOWER(%s);"
+            like_value = f"%{title}%"
+            cursor.execute(query, (like_value,))
+            movies = cursor.fetchall()
+            return [(movie["title"], movie["year"]) for movie in movies]
+

@@ -1,9 +1,7 @@
 import requests
 from database_manager import DatabaseManager
-from dotenv import dotenv_values
+from config import Config
 import sys
-
-config = dotenv_values(".env")
 
 args = sys.argv[1:]
 drop_table = "--drop-table" in args
@@ -35,12 +33,7 @@ def fetch_movies(api_key, year, page):
         print(f'Error fetching movies for year {year}')
         return None, 0
 
-db_manager = DatabaseManager({
-    "host": config["MYSQL_HOST"],
-    "user": config["MYSQL_USER"],
-    "password": config["MYSQL_PASSWORD"],
-    "database": config["MYSQL_DATABASE"]
-})
+db_manager = DatabaseManager()
 
 db_manager.create_tables(drop_table)
 
@@ -58,18 +51,17 @@ def fetch_and_insert_genres(db_manager, api_key):
     else:
         print("Error fetching genres.")
 
-# Получаем и вставляем жанры в базу данных
-fetch_and_insert_genres(db_manager, config["API_KEY"])
+fetch_and_insert_genres(db_manager, Config.get_api_key())
 
 year = year_start
 while year <= year_end:
     page = 1
-    movies, total_pages = fetch_movies(config["API_KEY"], year, page)
+    movies, total_pages = fetch_movies(Config.get_api_key(), year, page)
 
     while page <= total_pages:
         print(f"Processing page {page} of {total_pages} for year {year}")
 
-        movies, _ = fetch_movies(config["API_KEY"], year, page)
+        movies, _ = fetch_movies(Config.get_api_key(), year, page)
         for movie in movies:
             movie_id = movie.get('id')
             print(f"Movie with external_id {movie_id} (Page {page}/{total_pages} for year {year}) is processing...")
