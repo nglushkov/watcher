@@ -117,7 +117,7 @@ class DatabaseManager:
     def find_movie_by_title(self, title):
         with self.connect() as conn:
             cursor = conn.cursor(dictionary=True)
-            query = "SELECT title, YEAR(release_date) year FROM movies WHERE LOWER(title) LIKE LOWER(%s);"
+            query = "SELECT title, YEAR(release_date) year FROM movies WHERE LOWER(title) LIKE LOWER(%s) ORDER BY release_date;"
             like_value = f"%{title}%"
             cursor.execute(query, (like_value,))
             movies = cursor.fetchall()
