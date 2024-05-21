@@ -13,36 +13,61 @@ def last_watched_movies():
 def find_a_movie():
     questions = [inquirer.Text("title", message="Enter the title")]
     title = inquirer.prompt(questions).get("title")
-    result = db_manager.find_movie_by_title(title)
+    result = db_manager.find_movies(title)
     print_movies(result)
 
-def print_movies(movies):
-    table = PrettyTable()
-    table.field_names = ["Title", "Release Year"]
-    for movie in movies:
-        table.add_row(movie)
-    print(table)
+def print_movies(movies: list) -> None:
+    if not movies:
+        confirm_question = [
+            inquirer.Confirm(
+                "find_another",
+                message="Movie not found. Find another movies?",
+                default=True,
+            )
+        ]
+        answer = inquirer.prompt(confirm_question)
+        if answer["find_another"]:
+            find_a_movie()
+        return
+    
+    choices = [(f"{movie['title']} ({movie['year']})", movie["external_id"]) for movie in movies]
+    movies_questions = [
+        inquirer.List(
+            "choosed_movie",
+            message="Choose movie",
+            choices=choices
+        )
+    ]
+    answers = inquirer.prompt(movies_questions)
+    print(answers)
+    
+def exit_program():
+    global is_run
+    is_run = False
+    print("Exiting the program...")
 
-action_functions = {
-    "Add watched movie": add_watched_movie,
-    "Last watched movies": last_watched_movies,
-    "Find a movie": find_a_movie,
-}
+def main_menu():
+    global is_run
+    is_run = True
 
-questions = [
-    inquirer.List(
-        "action",
-        message="What do you want?",
-        choices=list(action_functions.keys()),
-    ),
-]
+    action_functions = {
+        "Add watched movie": add_watched_movie,
+        "Last watched movies": last_watched_movies,
+        "Find a movie": find_a_movie,
+        "Exit": exit_program
+    }
+    
+    while is_run:
+        questions = [
+            inquirer.List(
+                "action",
+                message="Choose an action",
+                choices=list(action_functions.keys())
+            )
+        ]
+        answers = inquirer.prompt(questions)
+        action = answers["action"]
+        action_functions[action]()
 
-answers = inquirer.prompt(questions)
-print(answers)
-
-selected_action = answers["action"]
-
-if selected_action in action_functions:
-    action_functions[selected_action]()
-else:
-    print("Неизвестное действие")
+if __name__ == "__main__":
+    main_menu()

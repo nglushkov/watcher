@@ -114,12 +114,12 @@ class DatabaseManager:
             print(f"Error while getting genres: {err}")
             return []
 
-    def find_movie_by_title(self, title):
+    def find_movies(self, title) -> list:
         with self.connect() as conn:
             cursor = conn.cursor(dictionary=True)
-            query = "SELECT title, YEAR(release_date) year FROM movies WHERE LOWER(title) LIKE LOWER(%s) ORDER BY release_date;"
+            query = "SELECT external_id, title, YEAR(release_date) year FROM movies WHERE LOWER(title) LIKE LOWER(%s) ORDER BY release_date;"
             like_value = f"%{title}%"
             cursor.execute(query, (like_value,))
             movies = cursor.fetchall()
-            return [(movie["title"], movie["year"]) for movie in movies]
+            return movies
 
