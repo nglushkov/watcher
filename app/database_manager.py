@@ -28,7 +28,7 @@ class DatabaseManager:
                         id BIGINT AUTO_INCREMENT PRIMARY KEY,
                         external_id BIGINT UNIQUE,
                         title VARCHAR(255),
-                        title_original VARCHAR(255),
+                        title_original VARCHAR(255) SET utf8mb4 COLLATE utf8mb4_unicode_ci,
                         release_date DATE,
                         rating DECIMAL(5, 3),
                         popularity DECIMAL(9, 3),
@@ -36,14 +36,14 @@ class DatabaseManager:
                         description TEXT,
                         INDEX idx_external_id (external_id),
                         INDEX idx_title (title)
-                    ) DEFAULT CHARSET=utf8;
+                    ) CHARACTER SET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
                 """)
 
                 cursor.execute("""
                     CREATE TABLE IF NOT EXISTS genres (
                         id INT UNIQUE,
                         name VARCHAR(255) UNIQUE
-                    ) DEFAULT CHARSET=utf8;
+                    )
                 """)
 
                 cursor.execute("""
