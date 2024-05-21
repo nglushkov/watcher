@@ -28,7 +28,7 @@ class DatabaseManager:
                         id BIGINT AUTO_INCREMENT PRIMARY KEY,
                         external_id BIGINT UNIQUE,
                         title VARCHAR(255),
-                        title_original VARCHAR(255) SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+                        title_original VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
                         release_date DATE,
                         rating DECIMAL(5, 3),
                         popularity DECIMAL(9, 3),
