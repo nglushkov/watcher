@@ -1,6 +1,5 @@
 import inquirer
 from database_manager import DatabaseManager
-from prettytable import PrettyTable
 
 db_manager = DatabaseManager()
 
