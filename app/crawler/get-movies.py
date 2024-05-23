@@ -4,6 +4,7 @@ import requests
 
 from config import Config
 from crawler.database_manager import DatabaseManager
+from logger import Log
 
 args = sys.argv[1:]
 drop_table = "--drop-table" in args
@@ -11,6 +12,7 @@ if drop_table:
     print("Drop table")
 year_start = None
 year_end = None
+log = Log()
 
 if drop_table:
     print("Drop table")
@@ -32,7 +34,7 @@ def fetch_movies(api_key, year, page):
         movies = data['results']
         return movies, total_pages
     else:
-        print(f'Error fetching movies for year {year}')
+        log.get_logger().info(f'Error fetching movies for year {year}')
         return None, 0
 
 db_manager = DatabaseManager()
@@ -46,12 +48,12 @@ def fetch_and_insert_genres(db_manager, api_key):
         genres = response.json().get('genres', [])
         for genre in genres:
             if db_manager.genre_exists(genre['id']):
-                print(f"Genre {genre['id']} is exists, skipping.")
+                log.get_logger().info(f"Genre {genre['id']} is exists, skipping.")
                 continue
             db_manager.add_genre(genre['id'], genre['name'])
-        print("Genres inserted into the database.")
+        log.get_logger().info("Genres inserted into the database.")
     else:
-        print("Error fetching genres.")
+        log.get_logger().info("Error fetching genres.")
 
 fetch_and_insert_genres(db_manager, Config.get_api_key())
 
@@ -61,17 +63,17 @@ while year <= year_end:
     movies, total_pages = fetch_movies(Config.get_api_key(), year, page)
 
     while page <= total_pages:
-        print(f"Processing page {page} of {total_pages} for year {year}")
+        log.get_logger().info(f"Processing page {page} of {total_pages} for year {year}")
 
         movies, _ = fetch_movies(Config.get_api_key(), year, page)
         for movie in movies:
             movie_id = movie.get('id')
-            print(f"Movie with external_id {movie_id} (Page {page}/{total_pages} for year {year}) is processing...")
+            log.get_logger().info(f"Movie with external_id {movie_id} (Page {page}/{total_pages} for year {year}) is processing...")
 
             if db_manager.movie_exists(movie_id) == False:
                 db_manager.add_movie(movie)
             else:
-                print(f"Movie with id:{movie_id} is existed")
+                log.get_logger().info(f"Movie with id:{movie_id} is existed")
                 break
             
             genre_ids = movie.get('genre_ids', [])

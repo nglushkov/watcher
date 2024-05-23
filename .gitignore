@@ -3,3 +3,4 @@ app/.env
 data/*
 app/__pycache__/*
 .idea/*
+watcher.log
