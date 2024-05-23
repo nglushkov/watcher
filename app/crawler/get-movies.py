@@ -6,15 +6,9 @@ from crawler.crawler_database_manager import CrawlerDatabaseManager
 from logger import Log
 
 args = sys.argv[1:]
-drop_table = "--drop-table" in args
-if drop_table:
-    print("Drop table")
 year_start = None
 year_end = None
 log = Log()
-
-if drop_table:
-    print("Drop table")
 
 if len(args) >= 2:
     try:
