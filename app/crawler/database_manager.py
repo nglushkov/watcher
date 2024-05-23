@@ -1,6 +1,7 @@
 from mysql import connector
-from dotenv import dotenv_values
+
 from config import Config
+
 
 class DatabaseManager:
     connection_params: dict

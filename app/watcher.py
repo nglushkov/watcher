@@ -1,5 +1,7 @@
 import inquirer
-from database_manager import DatabaseManager
+
+from crawler.database_manager import DatabaseManager
+
 
 class WatcherApp:
     def __init__(self):

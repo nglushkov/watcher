@@ -1,7 +1,9 @@
-import requests
-from database_manager import DatabaseManager
-from config import Config
 import sys
+
+import requests
+
+from config import Config
+from crawler.database_manager import DatabaseManager
 
 args = sys.argv[1:]
 drop_table = "--drop-table" in args
