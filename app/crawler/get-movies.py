@@ -1,9 +1,8 @@
 import sys
 
 import requests
-
 from config import Config
-from crawler.database_manager import DatabaseManager
+from crawler.crawler_database_manager import CrawlerDatabaseManager
 from logger import Log
 
 args = sys.argv[1:]
@@ -37,9 +36,7 @@ def fetch_movies(api_key, year, page):
         log.get_logger().info(f'Error fetching movies for year {year}')
         return None, 0
 
-db_manager = DatabaseManager()
-
-db_manager.create_tables(drop_table)
+db_manager = CrawlerDatabaseManager()
 
 def fetch_and_insert_genres(db_manager, api_key):
     url = f"https://api.themoviedb.org/3/genre/movie/list?api_key={api_key}&language=ru-RU"
