@@ -53,6 +53,9 @@ while year <= year_end:
     page = 1
     movies, total_pages = fetch_movies(Config.get_api_key(), year, page)
 
+    # Max pages count in TMDB API
+    if total_pages > 500:
+        total_pages = 500
     while page <= total_pages:
         log.get_logger().info(f"Processing page {page} of {total_pages} for year {year}")
 
