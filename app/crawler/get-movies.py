@@ -19,7 +19,7 @@ if len(args) >= 2:
         sys.exit(1)
 
 def fetch_movies(api_key, year, page):
-    url = f"https://api.themoviedb.org/3/discover/movie?api_key={api_key}&primary_release_year={year}&page={page}&language=ru-RU"
+    url = f"https://api.themoviedb.org/3/discover/movie?api_key={api_key}&primary_release_year={year}&page={page}&language=ru-RU&vote_count.gte=10"
     response = requests.get(url)
     if response.status_code == 200:
         data = response.json()
