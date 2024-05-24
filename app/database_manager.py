@@ -1,6 +1,6 @@
 from mysql import connector
 
-from config import Config
+from app.config import Config
 
 
 class DatabaseManager:

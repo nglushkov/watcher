@@ -1,4 +1,4 @@
-from database_manager import DatabaseManager
+from app.database_manager import DatabaseManager
 
 
 class CrawlerDatabaseManager(DatabaseManager):

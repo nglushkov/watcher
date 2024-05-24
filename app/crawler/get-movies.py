@@ -1,9 +1,9 @@
 import sys
 
 import requests
-from config import Config
-from crawler.crawler_database_manager import CrawlerDatabaseManager
-from logger import Log
+from app.config import Config
+from app.crawler.crawler_database_manager import CrawlerDatabaseManager
+from app.logger import Log
 
 args = sys.argv[1:]
 year_start = None
