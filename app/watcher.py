@@ -71,6 +71,16 @@ class WatcherApp:
         ]
         movie = inquirer.prompt(movies_questions).get("selected_movie")
         movie_name = f"{movie['title']} ({movie['year']})"
+
+        movie_details = [
+            ["Title", movie["title"]],
+            ["Original Title", movie["title_original"]],
+            ["Release Date", movie["release_date"].strftime("%d.%m.%Y") if movie["release_date"] else "N/A"],
+            ["Rating", str(movie["rating"])],
+            ["Description", movie["description"] or "N/A"]
+        ]
+        print(tabulate(movie_details, tablefmt="grid"))
+
         questions = [
             inquirer.Confirm("add_to_watched", message=f"Add to watched movies \"{movie_name}\"?"),
         ]
