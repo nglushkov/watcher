@@ -21,11 +21,11 @@ class DatabaseManager:
             movies = cursor.fetchall()
             return movies
 
-    def add_watched_movie(self, movie_id, rate, is_rewatch) -> None:
+    def add_watched_movie(self, movie_id, rate, is_rewatch, watch_date) -> None:
         with self.connect() as conn:
             cursor = conn.cursor(dictionary=True)
-            query = "INSERT INTO watched_movies (movie_id, date, rate, is_rewatch) VALUES (%s, NOW(), %s, %s)"
-            cursor.execute(query, (movie_id, rate, is_rewatch))
+            query = "INSERT INTO watched_movies (movie_id, date, rate, is_rewatch) VALUES (%s, %s, %s, %s)"
+            cursor.execute(query, (movie_id, watch_date, rate, is_rewatch))
             conn.commit()
             cursor.close()
 

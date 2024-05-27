@@ -1,7 +1,7 @@
 import inquirer
-
 from database_manager import DatabaseManager
 from tabulate import tabulate
+from datetime import datetime
 
 
 def rating_validator(_, x):
@@ -13,6 +13,15 @@ def rating_validator(_, x):
             raise ValueError("Rating must be between 1 and 5.")
     except ValueError:
         raise ValueError("Please enter a valid rating between 1 and 5.")
+
+
+def date_validator(_, x):
+    try:
+        datetime.strptime(x, "%d.%m.%Y")
+        return True
+    except ValueError:
+        raise ValueError("Date must be in format DD.MM.YYYY.")
+
 
 class WatcherApp:
     def __init__(self):
@@ -84,7 +93,27 @@ class WatcherApp:
             ]
             rewatch_answer = inquirer.prompt(rewatch_question).get("rewatch")
 
-            self.db_manager.add_watched_movie(movie["id"], rating, rewatch_answer)
+            date_confirm_question = [
+                inquirer.Confirm("set_date", message=f"Do you want to set the watch date for \"{movie_name}\"?")
+            ]
+            date_confirm_answer = inquirer.prompt(date_confirm_question).get("set_date")
+
+            if date_confirm_answer:
+                while True:
+                    try:
+                        date_question = [
+                            inquirer.Text("date", message="Enter the watch date (DD.MM.YYYY)", validate=date_validator)
+                        ]
+                        date_input = inquirer.prompt(date_question)
+                        watch_date = datetime.strptime(date_input.get("date"), "%d.%m.%Y").date()
+                        break
+                    except Exception as e:
+                        print("Error:", e)
+                        print("Please enter a valid date in format DD.MM.YYYY.")
+            else:
+                watch_date = datetime.now().date()
+
+            self.db_manager.add_watched_movie(movie["id"], rating, rewatch_answer, watch_date)
             print(f"Movie {movie_name} has been added to watched movies.")
 
     def exit_program(self):
