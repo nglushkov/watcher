@@ -36,7 +36,7 @@ class DatabaseManager:
                 SELECT wm.movie_id, wm.date, wm.rate, m.title, YEAR(m.release_date) year, wm.is_rewatch
                 FROM watched_movies wm
                 LEFT JOIN movies m ON wm.movie_id = m.id
-                ORDER BY wm.id DESC
+                ORDER BY wm.date DESC, wm.id DESC
             """
             cursor.execute(query)
             movies = cursor.fetchall()
