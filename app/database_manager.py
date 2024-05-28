@@ -1,3 +1,5 @@
+from datetime import datetime, timedelta
+
 from mysql import connector
 
 from app.config import Config
@@ -17,17 +19,29 @@ class DatabaseManager:
             cursor = conn.cursor(dictionary=True)
             query = """
                 SELECT
-                    id,
-                    external_id,
-                    title,
-                    YEAR(release_date) year,
-                    title_original,
-                    release_date,
-                    rating,
-                    description
-                FROM movies
-                WHERE LOWER(title) LIKE LOWER(%s)
-                ORDER BY release_date DESC
+                    m.id,
+                    m.external_id,
+                    m.title,
+                    YEAR(m.release_date) AS year,
+                    m.title_original,
+                    m.release_date,
+                    m.rating,
+                    m.description,
+                    GROUP_CONCAT(g.name ORDER BY g.name SEPARATOR ', ') AS genres
+                FROM movies m
+                LEFT JOIN movie_genres mg ON m.external_id = mg.movie_id
+                LEFT JOIN genres g ON mg.genre_id = g.id
+                WHERE LOWER(m.title) LIKE LOWER(%s)
+                GROUP BY
+                    m.id,
+                    m.external_id,
+                    m.title,
+                    m.title_original,
+                    m.release_date,
+                    m.rating,
+                    m.description
+                ORDER BY m.release_date DESC;
+
             """
             like_value = f"%{title}%"
             cursor.execute(query, (like_value,))
@@ -42,14 +56,55 @@ class DatabaseManager:
             conn.commit()
             cursor.close()
 
-    def get_last_watched_movie(self):
+    def get_all_watched_movies(self):
         with self.connect() as conn:
             cursor = conn.cursor(dictionary=True)
             query = """
-                SELECT wm.movie_id, wm.date, wm.rate, m.title, YEAR(m.release_date) year, wm.is_rewatch
+                SELECT wm.movie_id, wm.date, wm.rate, m.title, YEAR(m.release_date) AS year, wm.is_rewatch,
+                       GROUP_CONCAT(g.name ORDER BY g.name SEPARATOR ', ') AS genres
                 FROM watched_movies wm
                 LEFT JOIN movies m ON wm.movie_id = m.id
-                ORDER BY wm.date DESC, wm.id DESC
+                LEFT JOIN movie_genres mg ON m.external_id = mg.movie_id
+                LEFT JOIN genres g ON mg.genre_id = g.id
+                GROUP BY wm.movie_id, wm.date, wm.rate, m.title, YEAR(m.release_date), wm.is_rewatch, wm.id
+                ORDER BY wm.date DESC, wm.id DESC;
+            """
+            cursor.execute(query)
+            movies = cursor.fetchall()
+            return movies
+
+    def get_last_30_days_watched_movies(self):
+        with self.connect() as conn:
+            cursor = conn.cursor(dictionary=True)
+            thirty_days_ago = datetime.now() - timedelta(days=30)
+            query = """
+                SELECT wm.movie_id, wm.date, wm.rate, m.title, YEAR(m.release_date) AS year, wm.is_rewatch,
+                       GROUP_CONCAT(g.name ORDER BY g.name SEPARATOR ', ') AS genres
+                FROM watched_movies wm
+                LEFT JOIN movies m ON wm.movie_id = m.id
+                LEFT JOIN movie_genres mg ON m.external_id = mg.movie_id
+                LEFT JOIN genres g ON mg.genre_id = g.id
+                WHERE wm.date >= %s
+                GROUP BY wm.movie_id, wm.date, wm.rate, m.title, YEAR(m.release_date), wm.is_rewatch, wm.id
+                ORDER BY wm.date DESC, wm.id DESC;
+            """
+            cursor.execute(query, (thirty_days_ago,))
+            movies = cursor.fetchall()
+            return movies
+
+    def get_best_rewatched_movies(self):
+        with self.connect() as conn:
+            cursor = conn.cursor(dictionary=True)
+            query = """
+                SELECT wm.movie_id, wm.date, wm.rate, m.title, YEAR(m.release_date) AS year, wm.is_rewatch,
+                       GROUP_CONCAT(g.name ORDER BY g.name SEPARATOR ', ') AS genres
+                FROM watched_movies wm
+                LEFT JOIN movies m ON wm.movie_id = m.id
+                LEFT JOIN movie_genres mg ON m.external_id = mg.movie_id
+                LEFT JOIN genres g ON mg.genre_id = g.id
+                WHERE wm.rate = 5 AND wm.is_rewatch = 1
+                GROUP BY wm.movie_id, wm.date, wm.rate, m.title, YEAR(m.release_date), wm.is_rewatch, wm.id
+                ORDER BY wm.date DESC, wm.id DESC;
             """
             cursor.execute(query)
             movies = cursor.fetchall()

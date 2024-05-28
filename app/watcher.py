@@ -32,13 +32,34 @@ class WatcherApp:
         pass
 
     def last_watched_movies(self):
-        watched_movies = self.db_manager.get_last_watched_movie()
+        choices = [
+            'Last 30 days',
+            'Best rewatched',
+            'All'
+        ]
+        questions = [
+            inquirer.List('filter',
+                message="Choose filter option",
+                choices=choices,
+            ),
+        ]
+        answer = inquirer.prompt(questions)
+        filter_option = answer['filter']
+
+        if filter_option == 'Last 30 days':
+            watched_movies = self.db_manager.get_last_30_days_watched_movies()
+        elif filter_option == 'Best rewatched':
+            watched_movies = self.db_manager.get_best_rewatched_movies()
+        else:
+            watched_movies = self.db_manager.get_all_watched_movies()
+
         if not watched_movies:
-            print("You haven't watched any movies yet.")
+            print("No movies found.")
             return
 
-        headers = ["Title", "Date", "Rating", "Rewatch"]
-        rows = [[movie["title"] + " (" + str(movie["year"]) + ")", movie["date"], movie["rate"], "true" if movie["is_rewatch"] else ""] for movie in watched_movies]
+        headers = ["ID", "Title", "Date", "Genres", "Rating", "Rewatch"]
+        rows = [[idx + 1, movie["title"] + " (" + str(movie["year"]) + ")", movie["date"], movie["genres"], movie["rate"],
+             "true" if movie["is_rewatch"] else ""] for idx, movie in enumerate(watched_movies)]
 
         print(tabulate(rows, headers=headers, tablefmt="grid"))
 
@@ -76,10 +97,11 @@ class WatcherApp:
             ["Title", movie["title"]],
             ["Original Title", movie["title_original"]],
             ["Release Date", movie["release_date"].strftime("%d.%m.%Y") if movie["release_date"] else "N/A"],
+            ["Genres", movie["genres"]],
             ["Rating", str(movie["rating"])],
-            ["Description", movie["description"] or "N/A"]
         ]
         print(tabulate(movie_details, tablefmt="grid"))
+        print("Description:\n" + movie["description"])
 
         questions = [
             inquirer.Confirm("add_to_watched", message=f"Add to watched movies \"{movie_name}\"?"),
